@@ -97,10 +97,6 @@
   (parser-map (pair parser1 parser2)
               (fn [_ r] r)))
 
-(defn hmm []
-  (let [tag-opener (right (match-literal "<") identifier)]
-    (tag-opener "<my-first-element/>")))
-
 (deftest right-combinator
   (testing "That this works to parse..."
     (let [tag-opener (right (match-literal "<") identifier)]
