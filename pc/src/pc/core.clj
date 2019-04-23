@@ -112,21 +112,22 @@
   ;; The helper function for recursion
   (fn [top-input]
     (let [helper-fn
-          (fn [input results]
+          (fn [input {:keys [results]}]
             ;; Our forced one results
             (if (= 0 (count results))
               (let [parsed (parser input)
                     [next-input first-item] (:ok parsed)]
                 (if (:err parsed)
                   (err input)
-                  (recur next-input (conj results first-item))))
+                  (recur next-input {:results (conj results first-item)})))
               ;; Our recursion branch
               (let [parsed (parser input)
                     [next-input next-item] (:ok parsed)]
                 (if (:err parsed)
-                  results
-                  (recur next-input (conj results next-item))))))]
-      {:ok [top-input (helper-fn top-input [])]})))
+                  {:input input :results results}
+                  (recur next-input {:results (conj results next-item)})))))]
+      (let [final-result (helper-fn top-input {:input "" :results []})]
+        {:ok [(:input final-result) (:results final-result)]}))))
 
 (defn foo []
   (let [parser (one-or-more (match-literal "ha"))]
