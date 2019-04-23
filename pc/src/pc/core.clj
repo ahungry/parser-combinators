@@ -147,10 +147,6 @@
           final-result
           {:ok [(:input final-result) (:results final-result)]})))))
 
-(defn foo []
-  (let [parser (zero-or-more (match-literal "ha"))]
-    (parser "hahaha")))
-
 (deftest one-or-more-combinator
   (testing "One or more works"
     (let [parser (one-or-more (match-literal "ha"))]
@@ -173,7 +169,30 @@
              (parser "")))
       )))
 
-;; Leaving off at about 50% (one-or-more)
+(defn any-char [s]
+  {:ok [(subs s 1) (subs s 0 1)]})
+
+(defn pred [parser predicate]
+  (fn [input]
+    (let [parsed (parser input)
+          [next-input value] (:ok parsed)]
+      (prn parsed)
+      (if (:err parsed)
+        (err input)
+        (if (predicate value)
+          {:ok [next-input value]}
+          {:err input})))))
+
+(deftest pred-test
+  (testing "That the predicate works"
+    (let [parser (pred any-char
+                       (fn [c]
+                         (prn "P got : " c)
+                         (= c "o")))]
+      (is (= {:ok ["mg" "o"]}
+             (parser "omg")))
+      (is (= {:err "lol"}
+             (parser "lol"))))))
 
 (defn -main
   "I don't do a whole lot ... yet."
