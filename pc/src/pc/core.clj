@@ -108,6 +108,36 @@
              (tag-opener "!oops")))
       )))
 
+(defn one-or-more [parser]
+  ;; The helper function for recursion
+  (fn [top-input]
+    (let [helper-fn
+          (fn [input results]
+            ;; Our forced one results
+            (if (= 0 (count results))
+              (let [parsed (parser input)
+                    [next-input first-item] (:ok parsed)]
+                (if (:err parsed)
+                  (err input)
+                  (recur next-input (conj results first-item))))
+              ;; Our recursion branch
+              (let [parsed (parser input)
+                    [next-input next-item] (:ok parsed)]
+                (if (:err parsed)
+                  results
+                  (recur next-input (conj results next-item))))))]
+      {:ok [top-input (helper-fn top-input [])]})))
+
+(defn foo []
+  (let [parser (one-or-more (match-literal "ha"))]
+    (parser "hahaha")))
+
+(deftest one-or-more-combinator
+  (testing "One or more works"
+    (let [parser (one-or-more (match-literal "ha"))]
+      (is (= {:ok ["" [[] [] []]]}
+             (parser "hahaha"))))))
+
 ;; Leaving off at about 50% (one-or-more)
 
 (defn -main
