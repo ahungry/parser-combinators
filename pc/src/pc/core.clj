@@ -16,8 +16,13 @@
 
 (defn ok [ss]
   (let [ss (subvec ss 1)]
-    {:ok [(first ss) (or (second ss) true)]}))
-(defn err [s] [{:err s} false])
+    (if (> (count ss ) 1)
+      {:ok (reverse ss)}
+      {:ok [(first ss) true]})
+    ;; {:ok [(first ss) (or (second ss) true)]}
+    ))
+
+(defn err [s] {:err s})
 
 (defn the-letter-a [s]
   (or (some->> (re-find #"a(.*)" s) last ok)
@@ -33,12 +38,24 @@
     (let [parse-joe (match-literal "Hello Joe!")]
       (is (= {:ok ["" true]} (parse-joe "Hello Joe!")))
       (is (= {:ok [" Hello Robert!" true]} (parse-joe "Hello Joe! Hello Robert!")))
-      (is (= {:err "Hello Mike!"} (first (parse-joe "Hello Mike!"))))
+      (is (= {:err "Hello Mike!"} (parse-joe "Hello Mike!")))
       )))
 
 (defn identifier [s]
-  (or (some->> (re-find #"([A-Za-z0-9-]+)(.*)" s) ok)
-      (err s)))
+  (let [maybe (re-find #"^([A-Za-z0-9-]+)(.*)" s)]
+    (if (not maybe)
+      (err s)
+      (some->> maybe ok))))
+
+(deftest identifier-test
+  (testing "We can match identifier"
+    (is (= {:ok ["" "i-am-an-identifier"]}
+           (identifier "i-am-an-identifier")))
+    (is (= {:ok [" entirely an identifier" "not"]}
+           (identifier "not entirely an identifier")))
+    (is (= {:err "!not at all an identifier"}
+           (identifier "!not at all an identifier")))
+    ))
 
 (defn -main
   "I don't do a whole lot ... yet."
