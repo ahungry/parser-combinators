@@ -194,6 +194,22 @@
       (is (= {:err "lol"}
              (parser "lol"))))))
 
+(defn whitespace-char [] (pred any-char (fn [c] (= "c" " "))))
+(defn space-1 [] (one-or-more (whitespace-char)))
+(defn space-0 [] (zero-or-more (whitespace-char)))
+(defn quoted-string [s]
+  ((parser-map
+    (right (match-literal "\"")
+           (left (zero-or-more (pred any-char (fn [c] (not (= "\"" c)))))
+                 (match-literal "\"")))
+    (fn [& args]
+      (clojure.string/join args))) s))
+
+(deftest quoted-string-test
+  (testing "That quoted string parsing works."
+    (is (= {:ok ["" "Hello Joe!"]}
+           (quoted-string "\"Hello Joe!\"")))))
+
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
