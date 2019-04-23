@@ -176,7 +176,6 @@
   (fn [input]
     (let [parsed (parser input)
           [next-input value] (:ok parsed)]
-      (prn parsed)
       (if (:err parsed)
         (err input)
         (if (predicate value)
@@ -187,14 +186,13 @@
   (testing "That the predicate works"
     (let [parser (pred any-char
                        (fn [c]
-                         (prn "P got : " c)
                          (= c "o")))]
       (is (= {:ok ["mg" "o"]}
              (parser "omg")))
       (is (= {:err "lol"}
              (parser "lol"))))))
 
-(defn whitespace-char [] (pred any-char (fn [c] (= "c" " "))))
+(defn whitespace-char [] (pred any-char (fn [c] (= " " c))))
 (defn space-1 [] (one-or-more (whitespace-char)))
 (defn space-0 [] (zero-or-more (whitespace-char)))
 (defn quoted-string [s]
@@ -214,11 +212,17 @@
 (defn attribute-pair []
   (pair identifier (right (match-literal "=") quoted-string)))
 
+(defn ap-test []
+  ((attribute-pair) "foo=\"bar\""))
+
 (defn attributes []
   (zero-or-more (right (space-1) (attribute-pair))))
 
 (defn attr-str []
   "one=\"1\" two=\"2\"")
+
+(defn foo []
+  ((attributes) (attr-str)))
 
 (deftest attributes-test
   (testing "That we can parse attributes"
