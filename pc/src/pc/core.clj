@@ -108,6 +108,22 @@
              (tag-opener "!oops")))
       )))
 
+(defn zero-or-more [parser]
+  ;; The helper function for recursion
+  (fn [top-input]
+    (let [helper-fn
+          (fn [input {:keys [results]}]
+            ;; Our recursion branch
+            (let [parsed (parser input)
+                  [next-input next-item] (:ok parsed)]
+              (if (:err parsed)
+                {:input input :results results}
+                (recur next-input {:results (conj results next-item)}))))]
+      (let [final-result (helper-fn top-input {:input "" :results []})]
+        (if (:err final-result)
+          final-result
+          {:ok [(:input final-result) (:results final-result)]})))))
+
 (defn one-or-more [parser]
   ;; The helper function for recursion
   (fn [top-input]
@@ -127,17 +143,35 @@
                   {:input input :results results}
                   (recur next-input {:results (conj results next-item)})))))]
       (let [final-result (helper-fn top-input {:input "" :results []})]
-        {:ok [(:input final-result) (:results final-result)]}))))
+        (if (:err final-result)
+          final-result
+          {:ok [(:input final-result) (:results final-result)]})))))
 
 (defn foo []
-  (let [parser (one-or-more (match-literal "ha"))]
+  (let [parser (zero-or-more (match-literal "ha"))]
     (parser "hahaha")))
 
 (deftest one-or-more-combinator
   (testing "One or more works"
     (let [parser (one-or-more (match-literal "ha"))]
       (is (= {:ok ["" [[] [] []]]}
-             (parser "hahaha"))))))
+             (parser "hahaha")))
+      (is (= {:err "ahah"}
+             (parser "ahah")))
+      (is (= {:err ""}
+             (parser "")))
+      )))
+
+(deftest zero-or-more-combinator
+  (testing "One or more works"
+    (let [parser (zero-or-more (match-literal "ha"))]
+      (is (= {:ok ["" [[] [] []]]}
+             (parser "hahaha")))
+      (is (= {:ok ["ahah" []]}
+             (parser "ahah")))
+      (is (= {:ok ["" []]}
+             (parser "")))
+      )))
 
 ;; Leaving off at about 50% (one-or-more)
 
