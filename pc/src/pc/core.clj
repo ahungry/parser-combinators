@@ -210,6 +210,23 @@
     (is (= {:ok ["" "Hello Joe!"]}
            (quoted-string "\"Hello Joe!\"")))))
 
+;; TODO: The attribute parser stuff isn't working atm
+(defn attribute-pair []
+  (pair identifier (right (match-literal "=") quoted-string)))
+
+(defn attributes []
+  (zero-or-more (right (space-1) (attribute-pair))))
+
+(defn attr-str []
+  "one=\"1\" two=\"2\"")
+
+(deftest attributes-test
+  (testing "That we can parse attributes"
+    (is (= {:ok ["" [["one" "1"]
+                     ["two" "2"]]]}
+           ((attributes) "one=\"1\" two=\"2\""))))
+  )
+
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
