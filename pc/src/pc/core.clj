@@ -71,15 +71,46 @@
             (err (:err r2))
             {:ok [final-input [r1-result r2-result]]}))))))
 
-(defn hmm []
-  (let [tag-opener (pair (match-literal "<") identifier)]
-    (tag-opener "<my-first-element/>")))
-
 (deftest pair-combinator
   (testing "That this works to parse..."
     (let [tag-opener (pair (match-literal "<") identifier)]
       (is (= {:ok ["/>" [[] "my-first-element"]]}
-             (tag-opener "<my-first-element/>"))))))
+             (tag-opener "<my-first-element/>")))
+      (is (= {:err "oops"}
+             (tag-opener "oops")))
+      (is (= {:err "!oops"}
+             (tag-opener "!oops")))
+      )))
+
+(defn parser-map [parser map-fn]
+  (fn [input]
+    (let [r (parser input)]
+      (if (:err r)
+        (err (:err r))
+        {:ok [(-> r :ok first) (apply  map-fn (-> r :ok second))]}))))
+
+(defn left [parser1 parser2]
+  (parser-map (pair parser1 parser2)
+              (fn [l _] l)))
+
+(defn right [parser1 parser2]
+  (parser-map (pair parser1 parser2)
+              (fn [_ r] r)))
+
+(defn hmm []
+  (let [tag-opener (right (match-literal "<") identifier)]
+    (tag-opener "<my-first-element/>")))
+
+(deftest right-combinator
+  (testing "That this works to parse..."
+    (let [tag-opener (right (match-literal "<") identifier)]
+      (is (= {:ok ["/>" "my-first-element"]}
+             (tag-opener "<my-first-element/>")))
+      (is (= {:err "oops"}
+             (tag-opener "oops")))
+      (is (= {:err "!oops"}
+             (tag-opener "!oops")))
+      )))
 
 (defn -main
   "I don't do a whole lot ... yet."
