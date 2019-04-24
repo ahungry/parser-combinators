@@ -308,12 +308,12 @@
         parsed ((element) doc)]
     parsed))
 
-(deftest xml-parser []
-  (testing "That we can parse some fake xml"
-    (let [doc (slurp "doc.xml")
-          parsed ()]
-      (is )
-      )))
+;; (deftest xml-parser []
+;;   (testing "That we can parse some fake xml"
+;;     (let [doc (slurp "doc.xml")
+;;           parsed ()]
+;;       (is )
+;;       )))
 
 (defn -main
   "I don't do a whole lot ... yet."
