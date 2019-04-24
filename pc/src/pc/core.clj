@@ -233,6 +233,21 @@
            ((attributes) " one=\"1\" two=\"2\""))))
   )
 
+(defn element-start []
+  (right (match-literal "<")
+         (pair identifier (attributes))))
+
+(defn single-element []
+  (parser-map
+   (left (element-start) (match-literal "/>"))
+   (fn [name attributes]
+     (->Element name attributes []))))
+
+(deftest single-element-test
+  (testing "That we can do a single element"
+    (is (= {:ok ["" (->Element "div" [["class" "float"]] [])]}
+           ((single-element) "<div class=\"float\"/>")))))
+
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
