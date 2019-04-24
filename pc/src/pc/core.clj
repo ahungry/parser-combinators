@@ -30,14 +30,20 @@
 
 (defn match-literal [r]
   (fn [s]
-    (or (some->> (re-find (re-pattern (str "^" r "(.*)")) s) ok)
-        (err s))))
+    (if (or (= 0 (count s))
+            (> (count r) (count s)))
+      (err s)
+      (let [first (subs s 0 (count r))
+            rest (subs s (count r))]
+        (if (= 0 (clojure.string/index-of s r))
+          {:ok [rest first]}
+          (err s))))))
 
 (deftest match-literal-test
   (testing "We can match literals."
     (let [parse-joe (match-literal "Hello Joe!")]
       (is (= {:ok ["" []]} (parse-joe "Hello Joe!")))
-      (is (= {:ok [" Hello Robert!" []]} (parse-joe "Hello Joe! Hello Robert!")))
+      (is (= {:ok ["\nHello Robert!" []]} (parse-joe "Hello Joe!\nHello Robert!")))
       (is (= {:err "Hello Mike!"} (parse-joe "Hello Mike!")))
       )))
 
@@ -170,8 +176,9 @@
       )))
 
 (defn any-char [s]
-  {:ok [(subs s (min 1 (count s)))
-        (subs s 0 (min 1 (count s)))]})
+  (if (= 0 (count s)) {:ok [" "]}
+      {:ok [(subs s (min 1 (count s)))
+            (subs s 0 (min 1 (count s)))]}))
 
 (defn pred [parser predicate]
   (fn [input]
@@ -193,7 +200,7 @@
       (is (= {:err "lol"}
              (parser "lol"))))))
 
-(defn whitespace-char [] (pred any-char (fn [c] (re-find #"\s" c))))
+(defn whitespace-char [] (pred any-char (fn [c] (re-find #"\s" (str c)))))
 (defn space-1 [] (one-or-more (whitespace-char)))
 (defn space-0 [] (zero-or-more (whitespace-char)))
 (defn quoted-string [s]
@@ -285,6 +292,7 @@
 
 (defn and-then [parser f]
   (fn [input]
+    (prn "The AT input was: " input)
     (let [parsed (parser input)
           [next-input result] (:ok parsed)]
       (if (:err parsed)
