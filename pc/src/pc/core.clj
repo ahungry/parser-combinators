@@ -193,7 +193,7 @@
       (is (= {:err "lol"}
              (parser "lol"))))))
 
-(defn whitespace-char [] (pred any-char (fn [c] (= " " c))))
+(defn whitespace-char [] (pred any-char (fn [c] (re-find #"\s" c))))
 (defn space-1 [] (one-or-more (whitespace-char)))
 (defn space-0 [] (zero-or-more (whitespace-char)))
 (defn quoted-string [s]
@@ -247,6 +247,73 @@
   (testing "That we can do a single element"
     (is (= {:ok ["" (->Element "div" [["class" "float"]] [])]}
            ((single-element) "<div class=\"float\"/>")))))
+
+(defn open-element []
+  (parser-map
+   (left (element-start) (match-literal ">"))
+   (fn [name attributes]
+     (->Element name attributes []))))
+
+(defn either [parser1 parser2]
+  (fn [input]
+    (let [parsed1 (parser1 input)]
+      (if (:ok parsed1)
+        parsed1
+        (let [parsed2 (parser2 input)]
+          (if (:ok parsed2)
+            parsed2
+            (err input)))))))
+
+(defn whitespace-wrap [parser]
+  (right (space-0)
+         (left parser (space-0))))
+
+(declare parent-element)
+
+(defn element []
+  (whitespace-wrap
+   (either (single-element) (parent-element))))
+
+(defn close-element [expected-name]
+  (pred
+   (right (match-literal "</")
+          (left identifier (match-literal ">")))
+   (fn [name]
+     (prn "Close element got: " name)
+     (prn "Expected: " expected-name)
+     (= name expected-name))))
+
+(defn and-then [parser f]
+  (fn [input]
+    (let [parsed (parser input)
+          [next-input result] (:ok parsed)]
+      (if (:err parsed)
+        (err parsed)
+        ((f result) next-input)))))
+
+;; TODO: Probably remove superflous call of parser-map - we don't need to clone children.
+(defn parent-element []
+  (and-then
+   (open-element)
+   (fn [el]
+     (parser-map
+      (left (zero-or-more (element))
+            (close-element (:name el)))
+      (fn [& children]
+        (map->Element (conj el {:children (into [] children)}))))
+     )))
+
+(defn blub []
+  (let [doc (slurp "doc.xml")
+        parsed ((element) doc)]
+    parsed))
+
+(deftest xml-parser []
+  (testing "That we can parse some fake xml"
+    (let [doc (slurp "doc.xml")
+          parsed ()]
+      (is )
+      )))
 
 (defn -main
   "I don't do a whole lot ... yet."
