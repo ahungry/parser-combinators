@@ -170,7 +170,8 @@
       )))
 
 (defn any-char [s]
-  {:ok [(subs s 1) (subs s 0 1)]})
+  {:ok [(subs s (min 1 (count s)))
+        (subs s 0 (min 1 (count s)))]})
 
 (defn pred [parser predicate]
   (fn [input]
@@ -219,16 +220,17 @@
   (zero-or-more (right (space-1) (attribute-pair))))
 
 (defn attr-str []
-  "one=\"1\" two=\"2\"")
+  " one=\"1\" two=\"2\"")
 
 (defn foo []
   ((attributes) (attr-str)))
 
+;; TODO: Why do I have to have leading string??
 (deftest attributes-test
   (testing "That we can parse attributes"
     (is (= {:ok ["" [["one" "1"]
                      ["two" "2"]]]}
-           ((attributes) "one=\"1\" two=\"2\""))))
+           ((attributes) " one=\"1\" two=\"2\""))))
   )
 
 (defn -main
