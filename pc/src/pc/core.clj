@@ -33,10 +33,10 @@
     (if (or (= 0 (count s))
             (> (count r) (count s)))
       (err s)
-      (let [first (subs s 0 (count r))
+      (let [_first (subs s 0 (count r))
             rest (subs s (count r))]
         (if (= 0 (clojure.string/index-of s r))
-          {:ok [rest first]}
+          {:ok [rest []]}
           (err s))))))
 
 (deftest match-literal-test
@@ -57,8 +57,8 @@
   (testing "We can match identifier"
     (is (= {:ok ["" "i-am-an-identifier"]}
            (identifier "i-am-an-identifier")))
-    (is (= {:ok [" entirely an identifier" "not"]}
-           (identifier "not entirely an identifier")))
+    (is (= {:ok ["\nentirely an identifier" "not"]}
+           (identifier "not\nentirely an identifier")))
     (is (= {:err "!not at all an identifier"}
            (identifier "!not at all an identifier")))
     ))
