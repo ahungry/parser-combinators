@@ -47,8 +47,9 @@
       (is (= {:err "Hello Mike!"} (parse-joe "Hello Mike!")))
       )))
 
+;; TODO: Need to fix re-find to span newlines.
 (defn identifier [s]
-  (let [maybe (re-find #"^([A-Za-z0-9-]+)(.*)" s)]
+  (let [maybe (re-find #"^(?is)([A-Za-z0-9-]+)(.*)" s)]
     (if (not maybe)
       (err s)
       (some->> maybe ok))))
@@ -59,6 +60,8 @@
            (identifier "i-am-an-identifier")))
     (is (= {:ok ["\nentirely an identifier" "not"]}
            (identifier "not\nentirely an identifier")))
+    (is (= {:ok [" entirely \nan identifier" "not"]}
+           (identifier "not entirely \nan identifier")))
     (is (= {:err "!not at all an identifier"}
            (identifier "!not at all an identifier")))
     ))
@@ -286,13 +289,10 @@
    (right (match-literal "</")
           (left identifier (match-literal ">")))
    (fn [name]
-     (prn "Close element got: " name)
-     (prn "Expected: " expected-name)
      (= name expected-name))))
 
 (defn and-then [parser f]
   (fn [input]
-    (prn "The AT input was: " input)
     (let [parsed (parser input)
           [next-input result] (:ok parsed)]
       (if (:err parsed)
