@@ -30,14 +30,8 @@
 
 (defn match-literal [r]
   (fn [s]
-    (if (or (= 0 (count s))
-            (> (count r) (count s)))
-      (err s)
-      (let [_first (subs s 0 (count r))
-            rest (subs s (count r))]
-        (if (= 0 (clojure.string/index-of s r))
-          {:ok [rest []]}
-          (err s))))))
+    (or (some-> (re-find (re-pattern (str "(?s)^" r "(.*)")) s) ok)
+        (err s))))
 
 (deftest match-literal-test
   (testing "We can match literals."
