@@ -33,6 +33,7 @@ theLetterA =: 3 : 0
 )
 
 theLetter =: 4 : 0
+  smoutput 'Letter: ' ; x
   if. x = {. y
   do. OK x ; (}. y)
   else. ERR y
@@ -42,19 +43,29 @@ theLetter =: 4 : 0
 NB. Basically a HOF here, by bonding a dyadic to a monadic.
 tla =: 'a' & theLetter
 
+NB. A dyadic string equality check
 eq =: 4 : 0
   if. (# x) = (# y)
-  do. x = y
+  do. (# x) = (+/ x = y)
   else. 0
   end.
 )
 
 matchLiteral =: 4 : 0
-  fn=. x & theLetter
-  fr=. fn y
-  res=. > 0 { fr
-  if. 'ok' eq res
-  do. fr
+  xlen=. # x
+  ylen=. # y
+  ysub=. xlen $ y
+  ytail=. |. ((ylen - xlen) $ (|. y)) NB. Keep last set of chars.
+  if. x eq ysub
+  do. OK ysub ; ytail
   else. ERR y
   end.
 )
+
+ascii=:1 2 3 { 8 32 $ a.
+asciiFlat=: (0 { ascii) , (1 { ascii) , (2 { ascii)
+
+identifiers=: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+identifier=: identifiers =
+
+openTag =: '<' & matchLiteral
