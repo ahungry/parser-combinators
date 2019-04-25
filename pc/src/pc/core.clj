@@ -47,9 +47,9 @@
       (is (= {:err "Hello Mike!"} (parse-joe "Hello Mike!")))
       )))
 
-;; TODO: Need to fix re-find to span newlines.
+;; DOTALL mode https://nakkaya.com/2009/10/25/regular-expressions-in-clojure/
 (defn identifier [s]
-  (let [maybe (re-find #"^(?is)([A-Za-z0-9-]+)(.*)" s)]
+  (let [maybe (re-find #"^(?s)([A-Za-z0-9-]+)(.*)" s)]
     (if (not maybe)
       (err s)
       (some->> maybe ok))))
@@ -299,7 +299,6 @@
         (err parsed)
         ((f result) next-input)))))
 
-;; TODO: Probably remove superflous call of parser-map - we don't need to clone children.
 (defn parent-element []
   (and-then
    (open-element)
@@ -316,6 +315,29 @@
         parsed ((element) doc)]
     parsed))
 
+(def expected-doc-tree
+  {:ok
+   [""
+    {:name "top",
+     :attributes [["label" "Top"]],
+     :children
+     [{:name "semi-bottom",
+       :attributes [["label" "Bottom"]],
+       :children []}
+      {:name "middle",
+       :attributes [],
+       :children
+       [{:name "bottom",
+         :attributes [["label" "Another bottom"]],
+         :children []}]}]}]})
+
+(deftest xml-parser
+  (testing "That we can parse xml"
+    (let [doc (slurp "doc.xml")
+          parsed ((element) doc)
+          deep-path (-> parsed :ok (get 1) :children (get 1) :children (get 0) :attributes (get 0) (get 1))]
+      (is (= deep-path "Another bottom"))))
+  )
 ;; (deftest xml-parser []
 ;;   (testing "That we can parse some fake xml"
 ;;     (let [doc (slurp "doc.xml")
