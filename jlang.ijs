@@ -66,6 +66,8 @@ ascii=:1 2 3 { 8 32 $ a.
 asciiFlat=: (0 { ascii) , (1 { ascii) , (2 { ascii)
 
 identifiers=: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-identifier=: identifiers =
+isAlphaNum=: 3 : ('0 = # (#~ 62 = identifiers i. y)')
+isNotAlphaNum=: 3 : ('-. isAlphaNum y')
 
+indexOf=: (i.&'x')
 openTag =: '<' & matchLiteral
