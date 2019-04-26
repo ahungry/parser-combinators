@@ -57,11 +57,15 @@ eq =: 4 : 0
 matchLiteral =: 4 : 0
   xlen=. # x
   ylen=. # y
-  result=. xlen $ y
-  next=. |. ((ylen - xlen) $ (|. y)) NB. Keep last set of chars.
-  if. x eq result
-  do. OK next ; result
-  else. ERR y
+  if. xlen > ylen
+  do. ERR y
+  else.
+    result=. xlen $ y
+    next=. |. ((ylen - xlen) $ (|. y)) NB. Keep last set of chars.
+    if. x eq result
+    do. OK next ; result
+    else. ERR y
+    end.
   end.
 )
 
@@ -161,3 +165,7 @@ pair=: conjunction define
 tagOpener =: '<' & matchLiteral pair identifier
 
 smoutput tagOpener '<xml>'
+
+doubleTagOpener =: tagOpener pair tagOpener
+
+smoutput doubleTagOpener '<xml<xml>'
