@@ -69,5 +69,16 @@ identifiers=: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 isAlphaNum=: 3 : ('0 = # (#~ 62 = identifiers i. y)')
 isNotAlphaNum=: 3 : ('-. isAlphaNum y')
 
+xisAlphaNum=: 3 : ('(identifiers i. y)')
+
 indexOf=: (i.&'x')
 openTag =: '<' & matchLiteral
+
+NB. toupper / tolower
+parseIdentifiers =: 3 : 0
+  ylen=. # y
+  keepN=. # 62 taketo (identifiers i. y)
+  match=. keepN $ y
+  after=. |. ((ylen - keepN) $ (|. y))
+  OK match ; after
+)
