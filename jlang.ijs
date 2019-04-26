@@ -19,7 +19,8 @@ T=:32
 do script
 
 OK =: 3 : 0 NB. A monadic fn
-  'ok';  (> {. y) ; < (}. y)
+  NB. 'ok';  (> {. y) ; < (}. y)
+  'ok';  (> {. y) ; (}. y)
 )
 ERR =: 3 : 0
   'err'; y
@@ -54,10 +55,10 @@ eq =: 4 : 0
 matchLiteral =: 4 : 0
   xlen=. # x
   ylen=. # y
-  ysub=. xlen $ y
-  ytail=. |. ((ylen - xlen) $ (|. y)) NB. Keep last set of chars.
-  if. x eq ysub
-  do. OK ysub ; ytail
+  result=. xlen $ y
+  next=. |. ((ylen - xlen) $ (|. y)) NB. Keep last set of chars.
+  if. x eq result
+  do. OK next ; result
   else. ERR y
   end.
 )
@@ -65,7 +66,7 @@ matchLiteral =: 4 : 0
 ascii=:1 2 3 { 8 32 $ a.
 asciiFlat=: (0 { ascii) , (1 { ascii) , (2 { ascii)
 
-identifiers=: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+identifiers=: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-'
 isAlphaNum=: 3 : ('0 = # (#~ 62 = identifiers i. y)')
 isNotAlphaNum=: 3 : ('-. isAlphaNum y')
 
@@ -75,10 +76,16 @@ indexOf=: (i.&'x')
 openTag =: '<' & matchLiteral
 
 NB. toupper / tolower
-parseIdentifiers =: 3 : 0
+identifier =: 3 : 0
   ylen=. # y
-  keepN=. # 62 taketo (identifiers i. y)
-  match=. keepN $ y
-  after=. |. ((ylen - keepN) $ (|. y))
-  OK match ; after
+  keepN=. # (# identifiers) taketo (identifiers i. y)
+  result=. keepN $ y
+  next=. |. ((ylen - keepN) $ (|. y))
+  OK next ; result
+)
+
+pair =: 4 : 0
+  parser1=. x
+  parser2=. y
+  r1=. parser1
 )
