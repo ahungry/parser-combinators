@@ -84,8 +84,34 @@ identifier =: 3 : 0
   OK next ; result
 )
 
-pair =: 4 : 0
-  parser1=. x
-  parser2=. y
-  r1=. parser1
+NB. https://code.jsoftware.com/wiki/Guides/Lexical_Closure
+NB. u v x y
+pair =: conjunction define
+  smoutput 'uvxy'
+  debug=: u;v;x;y
+  smoutput debug
 )
+
+NB. A sample of lexical closure
+burke=: 1 : 0
+  n=. 'n_',(> cocreate''),'_'
+  (n)=. m
+  3 : (n,'=:',n,'+y')
+)
+
+NB. Again, sample with possible accumulation in lexical env
+oleg=: 1 : 0
+  a=. cocreate''
+  n__a=: m
+  a&(4 : 'n__x=: n__x + y')
+)
+
+NB. Similar to binding, but we could potentially do more inner calls?
+addX=: adverb define
+  a=. cocreate''
+  n__a=: m
+  a&(4 : 'n__x + y')
+)
+
+add9=: 9 addX
+smoutput add9 i. 5
