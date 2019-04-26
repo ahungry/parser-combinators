@@ -110,7 +110,12 @@ NB. Similar to binding, but we could potentially do more inner calls?
 addX=: adverb define
   a=. cocreate''
   n__a=: m
-  a&(4 : 'n__x + y')
+  NB. a&(4 : 'n__x + y')
+  NB. This is syntax error, UGH!
+  z=: (dyad define
+    n__x + y
+))
+  a&z
 )
 
 add9=: 9 addX
