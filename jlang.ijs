@@ -127,17 +127,37 @@ foo=: adverb define
   (3 * x) u (2 * y) NB. Dyadic definition
 )
 
-isOk=: 'ok' eq > 0 {
-isErr=: 'err' eq > 0 {
+isOk =: 3 : 0
+  if. 'ok' eq > 0 { y
+  do. 1
+  else. 0
+  end.
+)
+isErr=: -. @: isOk
 
-bar=: conjunction define
+
+pair=: conjunction define
   r1=: u y
-  smoutput 'First result: '
-  smoutput r1
-  r2=: v r1
-  smoutput 'Second result: '
-  smoutput r2
-  r2
+  if. isOk r1
+  do.
+    n1=: > 1 { r1
+    r1r=: > 2 { r1
+    r2=: v n1
+    if. isOk r2
+    do.
+      n2=: > 1 { r2
+      r2r=: > 2 { r2
+      OK n2 ; (< r1r ; r2r)
+    else.
+      ERR n1
+    end.
+  else.
+    ERR y
+  end.
 :
   x u u v y NB. Dyadic definition
 )
+
+tagOpener =: '<' & matchLiteral pair identifier
+
+smoutput tagOpener '<xml>'
