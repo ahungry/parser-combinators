@@ -1,5 +1,7 @@
 NB. https://www.jsoftware.com/help/learning/04.htm
 
+require 'strings'
+
 txt =: 0 : 0
 What is called a "script" is
 a sequence of lines of J.
@@ -107,16 +109,35 @@ oleg=: 1 : 0
 )
 
 NB. Similar to binding, but we could potentially do more inner calls?
+NB. https://www.jsoftware.com/help/jforc/when_programs_are_data.htm
 addX=: adverb define
   a=. cocreate''
   n__a=: m
-  NB. a&(4 : 'n__x + y')
+  a&(4 : 'n__x + y')
   NB. This is syntax error, UGH!
-  z=: (dyad define
-    n__x + y
-))
-  a&z
+  NB. a&addXverb
 )
 
 add9=: 9 addX
 smoutput add9 i. 5
+
+foo=: adverb define
+  u (2 * y) NB. Monadic definition
+:
+  (3 * x) u (2 * y) NB. Dyadic definition
+)
+
+isOk=: 'ok' eq > 0 {
+isErr=: 'err' eq > 0 {
+
+bar=: conjunction define
+  r1=: u y
+  smoutput 'First result: '
+  smoutput r1
+  r2=: v r1
+  smoutput 'Second result: '
+  smoutput r2
+  r2
+:
+  x u u v y NB. Dyadic definition
+)
