@@ -171,16 +171,12 @@ doubleTagOpener =: tagOpener pair tagOpener
 smoutput doubleTagOpener '<xml<xml>'
 
 map =: conjunction define
-  r=: u y
+  r=. u y
   if. isOk r
   do.
-    next=: > 1 { r
-    result=: > 2 { r
-    smoutput 'The result of map was: '
-    smoutput result
-    smoutput 'After application, it was: '
-    xx=: v result
-    smoutput xx
+    next=. > 1 { r
+    result=. > 2 { r
+    xx=. v result
     OK next ; v result
   else.
     ERR r
@@ -189,6 +185,11 @@ map =: conjunction define
   x u v y
 )
 
-left =: 2 : '(u pair v) map (1{y)'
+takeLeft =: 3 : ('0{y')
+takeRight =: 3 : ('1{y')
+
+left =: 2 : '(u pair v) map takeLeft'
+right =: 2 : '(u pair v) map takeRight'
 
 leftTagOpener =: '<' & matchLiteral left identifier
+rightTagOpener =: '<' & matchLiteral right identifier
