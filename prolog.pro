@@ -46,4 +46,18 @@ match_literal(Match, String, Result) :-
   slice_string_after(String, Mlen, Sliced),
   ok(Sliced, Match, Result).
 
+identifiers("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-").
+
+is_identifier([]).
+is_identifier([C | T]) :-
+  identifiers(Ids),
+  string_codes(Ids, Idcs),
+  member(C, Idcs),
+  is_identifier(T).
+
+identifier(S) :-
+  string_codes(S, Ss),
+  is_identifier(Ss).
+
+
 dot(_) --> ".".
