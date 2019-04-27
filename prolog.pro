@@ -46,25 +46,25 @@ match_literal(Match, String, Result) :-
 
 identifiers("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-").
 
-% TODO Make sure this returns up to first non-match
 is_identifier(C) :-
   identifiers(Ids),
   string_codes(Ids, Idcs),
   member(C, Idcs).
 
-identifier([], Ok) :- ok([], [], Ok).
-
-identifier([H|T], Ok) :-
+identifier(L, Acc, Ok) :-
+  [H|_] = L,
   \+is_identifier(H),
-  ok(T, [H], Ok).
+  ok(L, Acc, Ok).
 
-identifier([H|T], Ok) :-
+identifier([H|T], Acc, Ok) :-
   is_identifier(H),
-  identifier(T, Ok).
+  append(Acc, [H], Acc2),
+  identifier(T, Acc2, Ok).
 
+identifier([], Ok) :- ok([], [], Ok).
 identifier(S, Ok) :-
   string_codes(S, Ss),
-  identifier(Ss, OkRaw),
+  identifier(Ss, [], OkRaw),
   [_, NextCodes, ResultCodes] = OkRaw,
   string_codes(Next, NextCodes),
   string_codes(Result, ResultCodes),
