@@ -59,5 +59,26 @@ identifier(S) :-
   string_codes(S, Ss),
   is_identifier(Ss).
 
+identifier(S, OK) :-
+  identifier(S),
+  ok(S, S, OK).
+
+is_ok([ok | _]).
+is_err([err | _]).
+
+pair(Goal1, Goal2, Input, Output) :-
+  call(Goal1, Input, G1),
+  is_ok(G1),
+  [_, Next1, Result1] = G1,
+  call(Goal2, Next1, G2),
+  is_ok(G2),
+  [_, Next2, Result2] = G2,
+  ok(Next2, [Result1, Result2], Output).
+
+ml_tag_open(String, Result) :- match_literal("<", String, Result).
+
+tag_opener(String, Result) :-
+  pair(ml_tag_open, identifier, String, Result).
+
 
 dot(_) --> ".".
