@@ -21,10 +21,8 @@ take([H | T], Acc, N, Result) :-
   N2 is N - 1,
   take(T, Acc2, N2, Result).
 
-take_after(L, 0, L).
-take_after([_ | T], N, Result) :-
-  N < 1,
-  take_after(T, 0, Result).
+take_after(T, N, T) :-
+  N < 1.
 take_after([_ | T], N, Result) :-
   N > 0,
   N2 is N - 1,
@@ -48,6 +46,7 @@ match_literal(Match, String, Result) :-
 
 identifiers("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-").
 
+% TODO Make sure this returns up to first non-match
 is_identifier([]).
 is_identifier([C | T]) :-
   identifiers(Ids),
@@ -73,7 +72,7 @@ pair(Goal1, Goal2, Input, Output) :-
   call(Goal2, Next1, G2),
   is_ok(G2),
   [_, Next2, Result2] = G2,
-  ok(Next2, [Result1, Result2], Output).
+  ok(Next2, [Result1, Result2, Next1, Next2], Output).
 
 ml_tag_open(String, Result) :- match_literal("<", String, Result).
 
