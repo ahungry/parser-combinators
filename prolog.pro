@@ -106,3 +106,25 @@ right(Parser1, Parser2, Input, Output) :-
 
 ltag_opener(String, Result) :- left(ml_tag_open, identifier, String, Result).
 rtag_opener(String, Result) :- right(ml_tag_open, identifier, String, Result).
+
+% :- debug.
+zero_or_more(Parser, Input, Acc, Result) :-
+  call(Parser, Input, R1),
+  \+is_ok(R1),
+  ok(Acc, Input, Result).
+
+% TODO Fix issue with ZOM
+zero_or_more(Parser, Input, Acc, Result) :-
+  call(Parser, Input, R1),
+  is_ok(R1),
+  [_, Next, R] = R1,
+  format('~w~n', R),
+  append(Acc, [R], Acc2),
+  format('~w~n', Next),
+  zero_or_more(Parser, Next, Acc2, Result).
+
+zom_rtag_opener(String, Result) :-
+  zero_or_more(rtag_opener, String, [], Result).
+
+ml_haha(S, R) :- match_literal("ha", S, R).
+zom_ml_haha(S, R) :- zero_or_more(ml_haha, S, [], R).
