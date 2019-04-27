@@ -80,12 +80,29 @@ pair(Goal1, Goal2, Input, Output) :-
   call(Goal2, Next1, G2),
   is_ok(G2),
   [_, Next2, Result2] = G2,
-  ok(Next2, [Result1, Result2, Next1, Next2], Output).
+  ok(Next2, [Result1, Result2], Output).
 
 ml_tag_open(String, Result) :- match_literal("<", String, Result).
 
 tag_opener(String, Result) :-
   pair(ml_tag_open, identifier, String, Result).
 
+take_left([L,_|_], L).
+take_right([_,R|_], R).
 
-dot(_) --> ".".
+map(MaybeOk, Fn, Output) :-
+  is_ok(MaybeOk),
+  [_, Next, Result] = MaybeOk,
+  call(Fn, Result, ResultFn),
+  ok(Next, ResultFn, Output).
+
+left(Parser1, Parser2, Input, Output) :-
+  pair(Parser1, Parser2, Input, Out1),
+  map(Out1, take_left, Output).
+
+right(Parser1, Parser2, Input, Output) :-
+  pair(Parser1, Parser2, Input, Out1),
+  map(Out1, take_right, Output).
+
+ltag_opener(String, Result) :- left(ml_tag_open, identifier, String, Result).
+rtag_opener(String, Result) :- right(ml_tag_open, identifier, String, Result).
