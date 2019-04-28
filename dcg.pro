@@ -11,9 +11,24 @@ identifier([H|T]) -->
 
 identifier([]) --> [].
 
-open_tag(Tag, Next) --> "<", identifier(Tag), ">", any(Next).
+open_tag(Tag) --> "<", identifier(Tag), ">".
+close_tag(Tag) --> "</", identifier(Tag), ">".
+tag(Tag, Acc, Result) -->
+  open_tag(Tag),
+  { append(Acc, [Tag], Result) },
+  close_tag(Tag).
+tag(Tag, Child, Acc, Result) -->
+  open_tag(Tag),
+  { append(Acc, [Tag], Acc2) },
+  (tag(Child, _, Acc2, Result) | tag(Child, Acc2, Result)),
+  close_tag(Tag).
 
+% phrase(tag(Tag, Child), "<strong><foo><bar><baz></baz></bar></foo></strong>").
+
+ws --> [W], { char_type(W, space) }, ws.
+ws --> [].
+
+any --> [].
+any --> [_], any.
 any([]) --> [].
 any([H|T]) --> [H], any(T).
-
-% phrase(open_tag, N).
