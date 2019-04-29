@@ -33,8 +33,9 @@ tag(Result) -->
   { put_dict(child, Dict, ChildResult, Result) },
   close_tag(Tag).
 
-tags --> [].
-tags --> tag, tags.
+tags --> tags(_, _).
+tags(Result, Result) --> [].
+tags(Acc, Result) --> tag(R1), { append(Acc, [R1], R2) },tags(R2, Result).
 
 % phrase(tag(_, Result), "<strong><foo><bar><baz></baz></bar></foo></strong>").
 
