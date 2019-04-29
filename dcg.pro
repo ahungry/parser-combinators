@@ -20,27 +20,23 @@ dtest(I, O) :-
 % For some reason, the dict
 open_tag(Tag) --> "<", identifier(Tag), ">".
 close_tag(Tag) --> "</", identifier(Tag), ">".
-tag(Tag, Result) -->
+
+tag --> tag(_).
+tag(Result) -->
   open_tag(Tag),
-  {
-    Result = tag{ name: Tag }
-  },
+  { Result = tag{ name: Tag } },
   close_tag(Tag).
-tag(Tag, Child, Result) -->
+tag(Result) -->
   open_tag(Tag),
-  {
-    Dict = tag{ name: Tag }
-  },
-  (tag(Child, _, ChildResult) | tag(Child, ChildResult)),
-  {
-    put_dict(child, Dict, ChildResult, Result)
-  },
+  { Dict = tag{ name: Tag } },
+  tag(ChildResult),
+  { put_dict(child, Dict, ChildResult, Result) },
   close_tag(Tag).
 
 tags --> [].
-tags --> [tag], tags.
+tags --> tag, tags.
 
-%phrase(tag(Tag, Child, tag{name:root}, Acc), "<strong><foo><bar><baz></baz></bar></foo></strong>").
+% phrase(tag(_, Result), "<strong><foo><bar><baz></baz></bar></foo></strong>").
 
 ws --> [W], { char_type(W, space) }, ws.
 ws --> [].
