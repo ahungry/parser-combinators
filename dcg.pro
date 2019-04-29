@@ -61,3 +61,5 @@ sample("
 ").
 main(O) :- sample(I), phrase(tags(O), I).
 main_file(O) :-phrase_from_file(tags(O), 'doc.xml'). % Fails for some reason?
+
+main :- main(O), format('~w~n', [O]).
