@@ -38,7 +38,7 @@ tags(Acc, Result) --> tag(R1), { append(Acc, [R1], R2) }, tags(R2, Result).
 tags(Result, Result) --> [].
 
 % Working call to parse a list of tags even in recursive format.
-% phrase(tags([], R), "<xml><x></x><y></y></xml><foo></foo>").
+% phrase(tags([], R), "<xml><x \"id=blub\" \"blub=dub\"></x><y></y></xml><foo><bar></bar></foo>").
 
 ws --> [W], { char_type(W, space) }, ws.
 ws --> [].
