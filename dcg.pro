@@ -7,6 +7,17 @@
 identifier([H|T]) --> [H], { code_type(H, alpha) }, identifier(T).
 identifier([]) --> [].
 
+double_quote --> ['"'].
+dq_ws --> ws, double_quote.
+equals --> ['='].
+attribute(R) --> dq_ws, identifier(K), equals, identifier(V), double_quote, { R = a{k: K, v: V} }.
+% phrase(attribute(A), "  \"foo=bar\"").
+
+attributes --> attributes(_, _).
+attributes(Acc, Result) --> attribute(R1), { append(Acc, [R1], R2) }, attributes(R2, Result).
+attributes(Result, Result) --> [].
+% phrase(attributes([], R), "\"foo=bar\" \"baz=buz\"").
+
 open_tag(Tag) --> "<", identifier(Tag), ">".
 close_tag(Tag) --> "</", identifier(Tag), ">".
 
