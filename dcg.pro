@@ -14,21 +14,24 @@ attribute(R) --> dq_ws, identifier(K), equals, identifier(V), double_quote, { R 
 % phrase(attribute(A), "  \"foo=bar\"").
 
 attributes --> attributes(_, _).
+attributes(Result) --> attributes([], Result).
 attributes(Acc, Result) --> attribute(R1), { append(Acc, [R1], R2) }, attributes(R2, Result).
 attributes(Result, Result) --> [].
 % phrase(attributes([], R), "\"foo=bar\" \"baz=buz\"").
 
-open_tag(Tag) --> "<", identifier(Tag), ">".
+open_tag(Tag) --> open_tag(Tag, _).
+open_tag(Tag, Attrs) --> "<", identifier(Tag), attributes(Attrs), ">".
+open_tag(Tag, _) --> "<", identifier(Tag), ">".
 close_tag(Tag) --> "</", identifier(Tag), ">".
 
 tag --> tag(_).
 tag(Result) -->
-  open_tag(Tag),
-  { Dict = tag{ name: Tag } },
+  open_tag(Tag, Attrs),
+  { Dict = tag{ name: Tag, attrs: Attrs } },
   tags([], ChildResult),
   { put_dict(children, Dict, ChildResult, Result) },
   close_tag(Tag).
-tag(Result) --> open_tag(Tag), { Result = tag{ name: Tag } }, close_tag(Tag).
+tag(Result) --> open_tag(Tag, Attrs), { Result = tag{ name: Tag, attrs: Attrs } }, close_tag(Tag).
 
 tags --> tags(_, _).
 tags(Acc, Result) --> tag(R1), { append(Acc, [R1], R2) }, tags(R2, Result).
