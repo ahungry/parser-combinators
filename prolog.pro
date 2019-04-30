@@ -1,4 +1,15 @@
 % https://www.metalevel.at/prolog
+:- use_module(lambda).
+
+compose(F,G, FG) :-
+  FG =  \X^Z^(call(G,X,Y), call(F,Y,Z)).
+
+add_one(I, O) :- O is I + 1.
+add_two(I, O) :- O is I + 2.
+
+do_compose(Y) :-
+  compose(add_one, add_two, F),
+  call(F, Y).
 
 ok(Next, Result, OK) :- OK = [ok, Next, Result].
 err(Msg, Err) :- Err = [err, Msg].
