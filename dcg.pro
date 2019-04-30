@@ -3,7 +3,7 @@
 
 :- use_module(library(pio)).
 % Well, requiring this gets us the json stuff.
-:- use_module(library(http/http_json)).
+:- use_module(library(http/json)).
 :- set_prolog_flag(double_quotes, chars).
 
 identifier([H|T]) --> [H], { code_type(H, alpha) ; H = '-' }, identifier(T).
