@@ -85,3 +85,8 @@ to_json :-
   close(OutStream).
   %reply_json(O).
   %format('~w~n', [O]).
+
+
+add_one(I, O) :- O is I + 1.
+
+a1m --> add_one, add_one, add_one.
